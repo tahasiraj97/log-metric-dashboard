@@ -17,21 +17,70 @@ void addCount(int hourly, int daily, int weekly){
     counter.daily = daily;
     counter.weekly = weekly;
 }
-
-void addDevice(char *message, int cpu, int ram, int space, int storage, int time, bool status, int id){
+void updateTTL(){
     for(int i = 0; i < deviceCount; i++){
-        if(devices[i].id == -1){
-            devices[i].id = id;
-            devices[i].message = message;
+        if(devices[i].message == NULL){
+            continue;
+        }
+        devices[i].ttl++;
+        if(devices[i].status){
+            devices[i].time++;
+        }
+        if(devices[i].status == true && devices[i].ttl > 3){
+            devices[i].status = false;
+            devices[i].time = 0;
+            devices[i].ttl = 0;
+        }
+        else if(devices[i].status == false && devices[i].ttl >= 604800){
+            free(devices[i].message);
+            devices[i].message = NULL;
+            devices[i].cpu = 0;
+            devices[i].ram = 0;
+            devices[i].space = 0;
+            devices[i].storage = 0;
+            devices[i].time = 0;
+            devices[i].ttl = 0;
+        }
+    }
+}
+void addDevice(char *message, int cpu, int ram, int space, int storage){
+    for(int i = 0; i < deviceCount; i++){
+        if(devices[i].message == NULL){
+            devices[i].message = strdup(message);
             devices[i].cpu = cpu;
             devices[i].ram = ram;
             devices[i].space = space;
             devices[i].storage = storage;
-            devices[i].time = time;
-            devices[i].status = status;
+            devices[i].time = 0;
+            devices[i].status = true;
+            devices[i].ttl = 0;
             break;
         }
     }
+}
+void editDevice(char *message, int cpu, int ram, int space, int storage){
+    for(int i = 0; i < deviceCount; i++){
+        if(devices[i].message != NULL && strcmp(devices[i].message, message) == 0){
+            devices[i].cpu = cpu;
+            devices[i].ram = ram;
+            devices[i].space = space;
+            devices[i].storage = storage;
+            devices[i].ttl = 0;
+            if(devices[i].status == false){
+                devices[i].status = true;
+                devices[i].time = 0;
+            }
+            break;
+        }
+    }
+}
+bool getDevice(char *name){
+    for(int i = 0; i < deviceCount; i++){
+        if(devices[i].message != NULL && strcmp(devices[i].message, name) == 0){
+            return true;
+        }
+    }
+    return false;
 }
 void addLog(char *message, const char *time, int severity){
     int emptylog;

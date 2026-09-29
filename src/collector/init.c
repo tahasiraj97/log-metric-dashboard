@@ -6,12 +6,21 @@
 SDL_Window *window;
 SDL_Renderer *renderer;
 
+SDL_Mutex *messageMutex;
+SDL_Mutex *screenMutex;
+
 TTF_Font *font1;
 TTF_Font *font2;
 TTF_Font *font3;
 TTF_Font *font4;
 TTF_Font *font5;
 TTF_TextEngine *textEngine;
+
+messageQueue *messageHead = NULL;
+messageQueue *messageTail = NULL;
+screenQueue *screenHead = NULL;
+screenQueue *screenTail = NULL;
+SDL_Condition *messageCondition;
 
 static TTF_Font *loadFont(const char *name, float size){
     FcPattern *pattern = FcNameParse((const FcChar8 *)name);
@@ -31,11 +40,9 @@ void init(){
     int width, height;
     float middle;
 
-    messageQueue *messageHead = NULL;
-    messageQueue *messageTail = NULL;
-
-    screenQueue *screenHead = NULL;
-    screenQueue *screenTail = NULL;
+    messageMutex = SDL_CreateMutex();
+    screenMutex = SDL_CreateMutex();
+    messageCondition = SDL_CreateCondition();
 
     SDL_Init(SDL_INIT_VIDEO);
     SDL_DisplayID display = SDL_GetPrimaryDisplay();
@@ -75,7 +82,7 @@ void init(){
         devices[i].bottom.y = ((i * 2) + 1) * deviceCellHeight;
         devices[i].bottom.w = middle;
         devices[i].bottom.h = deviceCellHeight;
-        devices[i].id = -1;
+        devices[i].ttl = 0;
         devices[i].message = NULL;
         devices[i].cpu = 0;
         devices[i].ram = 0;
@@ -83,6 +90,7 @@ void init(){
         devices[i].storage = 0;
         devices[i].time = 0;
         devices[i].status = false;
+        
     }
 
     float counterHeight = 35;

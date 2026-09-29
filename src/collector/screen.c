@@ -50,10 +50,9 @@ void drawDevices(Devices *devices){
     SDL_RenderFillRect(renderer, &deviceArea);
 
     for(int i = 0; i < deviceCount; i++){
-        if(devices[i].id == -1){
+        if(devices[i].message == NULL){
             continue;
         }
-
         int textWidth;
         int cpuWidth;
         int ramWidth;

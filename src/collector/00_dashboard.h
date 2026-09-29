@@ -15,7 +15,6 @@ typedef struct {
 typedef struct {
     SDL_FRect top;
     SDL_FRect bottom;
-    int id;
     char *message;
     int cpu;
     int ram;
@@ -23,6 +22,7 @@ typedef struct {
     int storage;
     int time;
     bool status;
+    int ttl;
 } Devices;
 
 typedef struct {
@@ -39,6 +39,7 @@ typedef struct screenQueue {
 } screenQueue;
 
 typedef struct messageQueue {
+    int type;
     char *message;
     struct messageQueue *next;
 } messageQueue;
@@ -47,6 +48,10 @@ extern messageQueue *messageHead;
 extern messageQueue *messageTail;
 extern screenQueue *screenHead;
 extern screenQueue *screenTail;
+
+extern SDL_Mutex *messageMutex;
+extern SDL_Mutex *screenMutex;
+extern SDL_Condition *messageCondition;
 
 extern SDL_Window *window;
 extern SDL_Renderer *renderer;
@@ -68,14 +73,17 @@ extern int countSize;
 extern int logSize;
 
 int collector(void *data);
+int analyzer(void *data);
 
 void init();
 
-
-void addDevice(char *message, int cpu, int ram, int space, int storage, int time, bool status, int id);
+void updateTTL();
+void addDevice(char *message, int cpu, int ram, int space, int storage);
+void editDevice(char *message, int cpu, int ram, int space, int storage);
+bool getDevice(char *name);
 void addLog(char *message, const char *time, int severity);
 void addCount(int hourly, int daily, int weekly);
 
-void tick();
+void tick(Devices *devices, Logs *logs, Counter counter);
 
 #endif
