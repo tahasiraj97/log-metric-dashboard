@@ -2,6 +2,7 @@
 #include <SDL3/SDL.h>
 #include <stdlib.h>
 
+
 int main(void){
     init();
     SDL_Thread *collectorThread = SDL_CreateThread(collector, "Collector Thread", NULL);
