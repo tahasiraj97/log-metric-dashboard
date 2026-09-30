@@ -40,7 +40,7 @@ int main(){
         "if [ \"$1\" = \"start\" ]; then\n"
         "    DISPLAY=:0 nohup /usr/local/lib/dashboard/dashboard-bin >/dev/null 2>&1 &\n"
         "elif [ \"$1\" = \"stop\" ]; then\n"
-        "    pkill -9 /usr/local/lib/dashboard/dashboard-bin\n"
+        "    pkill -9 -f /usr/local/lib/dashboard/dashboard-bin\n"
         "else\n"
         "    echo \"Usage: dashboard start|stop\"\n"
         "fi\n"
