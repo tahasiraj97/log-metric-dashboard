@@ -39,7 +39,7 @@ int collector(void *data){
             }
           SDL_UnlockMutex(messageMutex);
         }
-        else {
+        else if(strncmp(message, "Log|", 4) == 0){
           SDL_LockMutex(messageMutex);
             if(messageHead == NULL){
               messageQueue *newMessage = malloc(sizeof(messageQueue));

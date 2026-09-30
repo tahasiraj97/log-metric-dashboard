@@ -28,8 +28,10 @@ typedef struct {
 typedef struct {
     SDL_FRect rect;
     int hourly;
-    int daily;
-    int weekly;
+    int htime;
+    int daily[24];
+    int dtime;
+    int weekly[7];
 } Counter;
 
 typedef struct screenQueue {
@@ -82,7 +84,8 @@ void addDevice(char *message, int cpu, int ram, int space, int storage);
 void editDevice(char *message, int cpu, int ram, int space, int storage);
 bool getDevice(char *name);
 void addLog(char *message, const char *time, int severity);
-void addCount(int hourly, int daily, int weekly);
+void addCount();
+void tickCount();
 
 void tick(Devices *devices, Logs *logs, Counter counter);
 

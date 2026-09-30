@@ -33,15 +33,16 @@ int analyzer(void *data){
         }
       }
       else if(current->type == 2){
-
+        char *time = strrchr(current->message, '|');
+        *time = '\0';
+        time++;
+        SDL_LockMutex(screenMutex);
+        addLog(current->message + 4, time, 0);
+        addCount();
+        SDL_UnlockMutex(screenMutex);
       }
       free(current->message);
       free(current);
     }
     return 0;
-}
-
-int logAnalyzer(void *data){
-
-  return 0;
 }

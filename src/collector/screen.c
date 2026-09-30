@@ -92,28 +92,64 @@ void drawDevices(Devices *devices){
         char timeText[12];
 
         snprintf(timeText, sizeof(timeText), "%d:%02d:%02d", devices[i].time / 3600, (devices[i].time % 3600) / 60, devices[i].time % 60);
-        snprintf(cpuText, sizeof(cpuText), "%d%%", devices[i].cpu);
-        snprintf(ramText, sizeof(ramText), "%d%%", devices[i].ram);
-        snprintf(spaceText, sizeof(spaceText), "%dG", devices[i].storage - devices[i].space);
+        if(devices[i].status){
+            snprintf(cpuText, sizeof(cpuText), "%d%%", devices[i].cpu);
+            snprintf(ramText, sizeof(ramText), "%d%%", devices[i].ram);
+            snprintf(spaceText, sizeof(spaceText), "%dG", devices[i].storage - devices[i].space);
+        }
+        else{
+            strcpy(cpuText, "N/A");
+            strcpy(ramText, "N/A");
+            strcpy(spaceText, "N/A");
+        }
 
         TTF_Text *cpuValue = TTF_CreateText(textEngine, font2, cpuText, 0);
-        TTF_SetTextColor(cpuValue, 0, 0, 0, 255);
+        if(!devices[i].status || devices[i].cpu < 50){
+            TTF_SetTextColor(cpuValue, 0, 0, 0, 255);
+        }
+        else if(devices[i].cpu < 75){
+            TTF_SetTextColor(cpuValue, 255, 200, 0, 255);
+        }
+        else{
+            TTF_SetTextColor(cpuValue, 255, 0, 0, 255);
+        }
         TTF_DrawRendererText(cpuValue, devices[i].top.x + (devices[i].top.w * 0.24f), devices[i].bottom.y - 5);
         TTF_DestroyText(cpuValue);
 
         TTF_Text *ramValue = TTF_CreateText(textEngine, font2, ramText, 0);
-        TTF_SetTextColor(ramValue, 0, 0, 0, 255);
+        if(!devices[i].status || devices[i].ram < 50){
+            TTF_SetTextColor(ramValue, 0, 0, 0, 255);
+        }
+        else if(devices[i].ram < 75){
+            TTF_SetTextColor(ramValue, 255, 200, 0, 255);
+        }
+        else{
+            TTF_SetTextColor(ramValue, 255, 0, 0, 255);
+        }
         TTF_DrawRendererText(ramValue, devices[i].top.x + (devices[i].top.w * 0.24f) + cpuWidth + 55, devices[i].bottom.y - 5);
         TTF_DestroyText(ramValue);
 
         TTF_Text *spaceValue = TTF_CreateText(textEngine, font2, spaceText, 0);
-        TTF_SetTextColor(spaceValue, 0, 0, 0, 255);
+        if(!devices[i].status || ((devices[i].space * 100) / devices[i].storage) < 75){
+            TTF_SetTextColor(spaceValue, 0, 0, 0, 255);
+        }
+        else if(((devices[i].space * 100) / devices[i].storage) < 85){
+            TTF_SetTextColor(spaceValue, 255, 200, 0, 255);
+        }
+        else{
+            TTF_SetTextColor(spaceValue, 255, 0, 0, 255);
+        }
         TTF_DrawRendererText(spaceValue, devices[i].top.x + (devices[i].top.w * 0.24f) + cpuWidth + 55 + ramWidth + 55, devices[i].bottom.y - 5);
         TTF_DestroyText(spaceValue);
 
         TTF_Text *statusValue = TTF_CreateText(textEngine, font2, devices[i].status ? timeText : "OFFLINE", 0);
         TTF_GetTextSize(statusValue, &textWidth, NULL);
-        TTF_SetTextColor(statusValue, 0, 0, 0, 255);
+        if(devices[i].status){
+            TTF_SetTextColor(statusValue, 0, 0, 0, 255);
+        }
+        else{
+            TTF_SetTextColor(statusValue, 255, 0, 0, 255);
+        }
         TTF_DrawRendererText(statusValue, devices[i].bottom.x + devices[i].bottom.w - textWidth - 10, devices[i].bottom.y - 5);
         TTF_DestroyText(statusValue);
     }
@@ -124,13 +160,24 @@ void drawCount(Counter counter){
     SDL_RenderFillRect(renderer, &counter.rect);
 
     int textWidth;
+    int daily = counter.hourly;
+    int weekly = counter.hourly;
     char hourlyText[12];
     char dailyText[12];
     char weeklyText[12];
 
+    for(int i = 0; i < 24; i++){
+        daily += counter.daily[i];
+        weekly += counter.daily[i];
+    }
+
+    for(int i = 0; i < 7; i++){
+        weekly += counter.weekly[i];
+    }
+
     snprintf(hourlyText, sizeof(hourlyText), "%d", counter.hourly);
-    snprintf(dailyText, sizeof(dailyText), "%d", counter.daily);
-    snprintf(weeklyText, sizeof(weeklyText), "%d", counter.weekly);
+    snprintf(dailyText, sizeof(dailyText), "%d", daily);
+    snprintf(weeklyText, sizeof(weeklyText), "%d", weekly);
 
     TTF_Text *hourlyTitle = TTF_CreateText(textEngine, font4, "HOURLY LOGS:", 0);
     TTF_GetTextSize(hourlyTitle, &textWidth, NULL);

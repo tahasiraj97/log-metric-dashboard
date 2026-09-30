@@ -12,10 +12,32 @@ int deviceSize;
 int countSize;
 int logSize;
 
-void addCount(int hourly, int daily, int weekly){
-    counter.hourly = hourly;
-    counter.daily = daily;
-    counter.weekly = weekly;
+void addCount(){
+    counter.hourly++;
+}
+
+void tickCount(){
+    counter.htime++;
+    if(counter.htime >= 3600){
+        counter.daily[counter.dtime] = counter.hourly;
+        counter.hourly = 0;
+        counter.htime = 0;
+        counter.dtime++;
+        if(counter.dtime >= 24){
+            int total = 0;
+            for(int i = 0; i < 24; i++){
+                total += counter.daily[i];
+            }
+            for(int i = 0; i < 6; i++){
+                counter.weekly[i] = counter.weekly[i + 1];
+            }
+            counter.weekly[6] = total;
+            for(int i = 0; i < 24; i++){
+                counter.daily[i] = 0;
+            }
+            counter.dtime = 0;
+        }
+    }
 }
 void updateTTL(){
     for(int i = 0; i < deviceCount; i++){

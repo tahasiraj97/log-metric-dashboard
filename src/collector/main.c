@@ -2,15 +2,24 @@
 #include <SDL3/SDL.h>
 #include <stdlib.h>
 
-
+int timeTick(void *data){
+    while(true){
+        SDL_LockMutex(screenMutex);
+        updateTTL();
+        tickCount();
+        SDL_UnlockMutex(screenMutex);
+        SDL_Delay(1000);
+    }
+    return 0;
+}
 int main(void){
     init();
     SDL_Thread *collectorThread = SDL_CreateThread(collector, "Collector Thread", NULL);
     SDL_Thread *analyzerThread = SDL_CreateThread(analyzer, "Analyzer Thread", NULL);
+    SDL_Thread *timeThread = SDL_CreateThread(timeTick, "Time Thread", NULL);
 
     while(true){
         SDL_LockMutex(screenMutex);
-        updateTTL();
         Devices *deviceCopy = malloc(deviceCount * sizeof(*deviceCopy));
         Logs *logCopy = malloc(logCount * sizeof(*logCopy));
         Counter counterCopy;
@@ -35,7 +44,7 @@ int main(void){
         }
         free(deviceCopy);
         free(logCopy);
-        SDL_Delay(1000);
+        SDL_Delay(33);
     }
     return 0;
 }

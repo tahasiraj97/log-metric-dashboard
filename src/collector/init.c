@@ -104,8 +104,15 @@ void init(){
     counter.rect.w = width - middle;
     counter.rect.h = counterHeight;
     counter.hourly = 0;
-    counter.daily = 0;
-    counter.weekly = 0;
+    counter.htime = 0;
+    counter.dtime = 0;
+    for(int i = 0; i < 24; i++){
+        counter.daily[i] = 0;
+    }
+
+    for(int i = 0; i < 7; i++){
+        counter.weekly[i] = 0;
+    }
     countSize = ((width - middle) - 20) / 8;
     logSize = ((width - middle) - 20) / 8;
     logs = malloc(logCount * sizeof(*logs));
