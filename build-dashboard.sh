@@ -8,8 +8,8 @@ docker compose exec -T -e PKG_CONFIG_LIBDIR=/usr/lib/aarch64-linux-gnu/pkgconfig
 docker compose cp "dashboard:/tmp/$1-arm64" "build/dashboard/$1-arm64"
 chmod +x "build/dashboard/$1-arm64"
 
-gcc installer/installer.c -o build/dashboard/installer-amd64
-aarch64-linux-gnu-gcc installer/installer.c -o build/dashboard/installer-arm64
+gcc -DDASHBOARD_VERSION="\"$1\"" src/install/main.c -o build/dashboard/installer-amd64
+aarch64-linux-gnu-gcc -DDASHBOARD_VERSION="\"$1\"" src/install/main.c -o build/dashboard/installer-arm64
 
 chmod +x build/dashboard/installer-amd64
 chmod +x build/dashboard/installer-arm64
