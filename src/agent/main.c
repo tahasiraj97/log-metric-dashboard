@@ -17,7 +17,8 @@ void *deviceInfo(void *data){
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_DGRAM;
 
-    getaddrinfo("dashboard", "5500", &hints, &dashboard);
+    char *dashboardIP = data;
+    getaddrinfo(dashboardIP, "5500", &hints, &dashboard);
 
     char hostname[256];
     gethostname(hostname, sizeof(hostname));
@@ -100,7 +101,8 @@ void *logs(void *data){
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_DGRAM;
 
-    getaddrinfo("dashboard", "5500", &hints, &dashboard);
+    char *dashboardIP = data;
+    getaddrinfo(dashboardIP, "5500", &hints, &dashboard);
 
     pid_t sessions[256] = {0};
 
@@ -144,11 +146,15 @@ void *logs(void *data){
 }
 
 int main(void){
+    char dashboardIP[64];
+    printf("Dashboard IP: ");
+    scanf("%63s", dashboardIP);
     pthread_t deviceThread;
     pthread_t logThread;
-    pthread_create(&deviceThread, NULL, deviceInfo, NULL);
-    pthread_create(&logThread, NULL, logs, NULL);
+    pthread_create(&deviceThread, NULL, deviceInfo, dashboardIP);
+    pthread_create(&logThread, NULL, logs, dashboardIP);
     pthread_join(deviceThread, NULL);
     pthread_join(logThread, NULL);
+
     return 0;
 }
