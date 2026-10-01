@@ -116,14 +116,13 @@ void *logs(void *data){
 int main(void){
     FILE *file;
     char dashboardIP[64];
-    printf("Dashboard IP: ");
-    scanf("%63s", dashboardIP);
     pthread_t deviceThread, logThread;
+    pid_t pid;
     file = fopen("/usr/local/bin/agent", "w");
     fprintf(file,
         "#!/bin/bash\n"
         "if [ \"$1\" = \"start\" ]; then\n"
-        "    nohup /usr/local/lib/agent/agent-bin >/dev/null 2>&1 &\n"
+        "    /usr/local/lib/agent/agent-bin\n"
         "elif [ \"$1\" = \"stop\" ]; then\n"
         "    pkill -9 -f /usr/local/lib/agent/agent-bin\n"
         "else\n"
@@ -132,6 +131,23 @@ int main(void){
     );
     fclose(file);
     system("chmod +x /usr/local/bin/agent");
+    printf("Dashboard IP: ");
+    scanf("%63s", dashboardIP);
+    pid = fork();
+    if(pid < 0){
+        return 1;
+    }
+
+    if(pid > 0){
+        return 0;
+    }
+
+    setsid();
+
+    freopen("/dev/null", "r", stdin);
+    freopen("/dev/null", "w", stdout);
+    freopen("/dev/null", "w", stderr);
+
     pthread_create(&deviceThread, NULL, deviceInfo, dashboardIP);
 
     while(system("systemctl is-active --quiet ssh.service") != 0){
@@ -139,7 +155,9 @@ int main(void){
     }
 
     pthread_create(&logThread, NULL, logs, dashboardIP);
+
     pthread_join(deviceThread, NULL);
     pthread_join(logThread, NULL);
+
     return 0;
 }
