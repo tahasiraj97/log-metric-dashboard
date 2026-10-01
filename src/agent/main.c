@@ -118,13 +118,16 @@ int main(void){
     char dashboardIP[64];
     pthread_t deviceThread, logThread;
     pid_t pid;
+    system("mkdir -p /usr/local/lib/agent");
+    system("cp /proc/self/exe /usr/local/lib/agent/agent-bin");
+    system("chmod +x /usr/local/lib/agent/agent-bin");
     file = fopen("/usr/local/bin/agent", "w");
     fprintf(file,
         "#!/bin/bash\n"
         "if [ \"$1\" = \"start\" ]; then\n"
         "    /usr/local/lib/agent/agent-bin\n"
         "elif [ \"$1\" = \"stop\" ]; then\n"
-        "    pkill -9 -f /usr/local/lib/agent/agent-bin\n"
+        "    pkill -9 -f 'agent-installer-V0.1-arm64|/usr/local/lib/agent/agent-bin'\n"
         "else\n"
         "    echo \"Usage: agent start|stop\"\n"
         "fi\n"
@@ -143,19 +146,14 @@ int main(void){
     }
 
     setsid();
-
     freopen("/dev/null", "r", stdin);
     freopen("/dev/null", "w", stdout);
     freopen("/dev/null", "w", stderr);
-
     pthread_create(&deviceThread, NULL, deviceInfo, dashboardIP);
-
     while(system("systemctl is-active --quiet ssh.service") != 0){
         sleep(1);
     }
-
     pthread_create(&logThread, NULL, logs, dashboardIP);
-
     pthread_join(deviceThread, NULL);
     pthread_join(logThread, NULL);
 
