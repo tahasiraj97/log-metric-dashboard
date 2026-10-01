@@ -119,7 +119,13 @@ int main(void){
     pthread_t deviceThread, logThread;
     pid_t pid;
     system("mkdir -p /usr/local/lib/agent");
-    system("cp /proc/self/exe /usr/local/lib/agent/agent-bin");
+    char selfPath[512], command[1024];
+    ssize_t length = readlink("/proc/self/exe", selfPath, sizeof(selfPath) - 1);
+    selfPath[length] = '\0';
+    system("mkdir -p /usr/local/lib/agent");
+    snprintf(command, sizeof(command), "cp \"%s\" /usr/local/lib/agent/agent-bin", selfPath);
+    system(command);
+    system("chmod +x /usr/local/lib/agent/agent-bin");
     system("chmod +x /usr/local/lib/agent/agent-bin");
     file = fopen("/usr/local/bin/agent", "w");
     fprintf(file,
