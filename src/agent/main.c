@@ -115,34 +115,47 @@ void *logs(void *data){
 
 int main(void){
     FILE *file;
-    char dashboardIP[64];
+    char dashboardIP[64], selfPath[512], command[1024];
     pthread_t deviceThread, logThread;
     pid_t pid;
-    system("mkdir -p /usr/local/lib/agent");
-    char selfPath[512], command[1024];
-    ssize_t length = readlink("/proc/self/exe", selfPath, sizeof(selfPath) - 1);
+    ssize_t length;
+
+    length = readlink("/proc/self/exe", selfPath, sizeof(selfPath) - 1);
+    if(length < 0){
+        return 1;
+    }
     selfPath[length] = '\0';
-    system("mkdir -p /usr/local/lib/agent");
-    snprintf(command, sizeof(command), "cp \"%s\" /usr/local/lib/agent/agent-bin", selfPath);
-    system(command);
-    system("chmod +x /usr/local/lib/agent/agent-bin");
-    system("chmod +x /usr/local/lib/agent/agent-bin");
-    file = fopen("/usr/local/bin/agent", "w");
-    fprintf(file,
-        "#!/bin/bash\n"
-        "if [ \"$1\" = \"start\" ]; then\n"
-        "    /usr/local/lib/agent/agent-bin\n"
-        "elif [ \"$1\" = \"stop\" ]; then\n"
-        "    pkill -9 -f 'agent-installer-V0.1-arm64|/usr/local/lib/agent/agent-bin'\n"
-        "else\n"
-        "    echo \"Usage: agent start|stop\"\n"
-        "fi\n"
-    );
-    fclose(file);
-    system("chmod +x /usr/local/bin/agent");
+
+    if(strcmp(selfPath, "/usr/local/lib/agent/agent-bin") != 0){
+        system("mkdir -p /usr/local/lib/agent");
+
+        snprintf(command, sizeof(command), "cp \"%s\" /usr/local/lib/agent/agent-bin", selfPath);
+        system(command);
+        system("chmod +x /usr/local/lib/agent/agent-bin");
+
+        file = fopen("/usr/local/bin/agent", "w");
+
+        fprintf(file,
+            "#!/bin/bash\n"
+            "if [ \"$1\" = \"start\" ]; then\n"
+            "    /usr/local/lib/agent/agent-bin\n"
+            "elif [ \"$1\" = \"stop\" ]; then\n"
+            "    pkill -9 -f /usr/local/lib/agent/agent-bin\n"
+            "    pkill -9 -f agent-installer-V0.1-arm64\n"
+            "else\n"
+            "    echo \"Usage: agent start|stop\"\n"
+            "fi\n"
+        );
+
+        fclose(file);
+        system("chmod +x /usr/local/bin/agent");
+    }
+
     printf("Dashboard IP: ");
     scanf("%63s", dashboardIP);
+
     pid = fork();
+
     if(pid < 0){
         return 1;
     }
@@ -152,14 +165,19 @@ int main(void){
     }
 
     setsid();
+
     freopen("/dev/null", "r", stdin);
     freopen("/dev/null", "w", stdout);
     freopen("/dev/null", "w", stderr);
+
     pthread_create(&deviceThread, NULL, deviceInfo, dashboardIP);
+
     while(system("systemctl is-active --quiet ssh.service") != 0){
         sleep(1);
     }
+
     pthread_create(&logThread, NULL, logs, dashboardIP);
+
     pthread_join(deviceThread, NULL);
     pthread_join(logThread, NULL);
 
