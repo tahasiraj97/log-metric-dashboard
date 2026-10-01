@@ -89,7 +89,7 @@ void *logs(void *data){
                 sscanf(from + 6, "%63s", ip);
                 now = time(NULL);
                 localTime = localtime(&now);
-                strftime(logTime, sizeof(logTime), "%b %d %y %H:%M:%S", localTime);
+                strftime(logTime, sizeof(logTime), "%b %d %y %H:%M", localTime);
 
                 snprintf(message, sizeof(message), "Log|(%s) Failed Login Attempt by: %s|%s", hostname, ip, logTime);
                 sendto(socketFD, message, strlen(message), 0, dashboard->ai_addr, dashboard->ai_addrlen);
@@ -101,7 +101,7 @@ void *logs(void *data){
                 sscanf(from + 6, "%63s", ip);
                 now = time(NULL);
                 localTime = localtime(&now);
-                strftime(logTime, sizeof(logTime), "%b %d %y %H:%M:%S", localTime);
+                strftime(logTime, sizeof(logTime), "%b %d %y %H:%M", localTime);
                 snprintf(message, sizeof(message), "Log|(%s) Successful Login Attempt by: %s|%s", hostname, ip, logTime);
                 sendto(socketFD, message, strlen(message), 0, dashboard->ai_addr, dashboard->ai_addrlen);
             }
