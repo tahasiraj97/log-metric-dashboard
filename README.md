@@ -2,7 +2,7 @@
 
 A lightweight system monitoring dashboard written in C using SDL3.
 
-The dashboard is designed for headless Linux systems such as a Raspberry Pi 5 and provides a simple visual interface for displaying system information, service status, and logs.
+The dashboard is designed for headless Linux systems such as a Raspberry Pi 5 or Debian and provides a simple visual interface for displaying system information, service status, and logs.
 
 ## Features
 
